@@ -1,5 +1,8 @@
 import requests
 from urllib.parse import quote, unquote
+from pprint import pp
+
+
 def get_products(query, by="relevance", limit=10):
     # encode search query to URL-friendly format
     query = quote(query)
@@ -64,7 +67,7 @@ def get_products(query, by="relevance", limit=10):
 def main():
     query = input()
     for product in get_products(query):
-        print(product)
+        pp(product, width=500)
 
 
 if __name__ == "__main__":
