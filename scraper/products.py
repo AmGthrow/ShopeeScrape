@@ -76,9 +76,10 @@ class ShopeeAPI(AbstractAPI):
 
 
 def main():
-    query = input()
-    for product in get_products(query):
-        pp(product, width=500)
+    shopee = ShopeeAPI()
+    results = shopee.getProducts(keyword="redmi note 9", by="relevance")
+    for result in results:
+        pp(result, width=500)
 
 
 if __name__ == "__main__":
