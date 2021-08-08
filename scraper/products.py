@@ -5,11 +5,12 @@ from urllib.parse import quote
 logger = logging.Logger(__name__)
 logger.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s')
-handler = logging.FileHandler('./logs/searches.log')
+formatter = logging.Formatter("%(levelname)s - %(asctime)s - %(message)s")
+handler = logging.FileHandler("./logs/searches.log")
 handler.setFormatter(formatter)
 
 logger.addHandler(handler)
+
 
 class AbstractAPI:
     @staticmethod
@@ -98,4 +99,3 @@ class ShopeeAPI(AbstractAPI):
             result = product["item_basic"]
             logger.info(f"Got item {result['itemid']}: {result['name']}")
             yield filterData(result)
-
