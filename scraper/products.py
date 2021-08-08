@@ -99,13 +99,3 @@ class ShopeeAPI(AbstractAPI):
             logger.info(f"Got item {result['itemid']}: {result['name']}")
             yield filterData(result)
 
-
-def main():
-    shopee = ShopeeAPI()
-    results = shopee.search(keyword="redmi note 9", by="relevance")
-    for result in results:
-        print(result)
-
-
-if __name__ == "__main__":
-    main()
