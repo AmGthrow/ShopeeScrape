@@ -1,6 +1,15 @@
 import requests
+import logging
 from urllib.parse import quote
 
+logger = logging.Logger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(message)s')
+handler = logging.FileHandler('searches.log')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 
 class AbstractAPI:
     @staticmethod
@@ -79,12 +88,15 @@ class ShopeeAPI(AbstractAPI):
         endpoint = self.endpoints["products"]
         params = AbstractAPI.urlEncodeQuery(**kwargs)
 
-        response = requests.get(url=endpoint, params=kwargs).json()
+        response = requests.get(url=endpoint, params=kwargs)
+        logger.info(f"Sent request to {response.url}")
+        response = response.json()
         # list of items returned by the API
         products = response["items"]
         for product in products:
             # item's data
             result = product["item_basic"]
+            logger.info(f"Got item {result['itemid']}: {result['name']}")
             yield filterData(result)
 
 
