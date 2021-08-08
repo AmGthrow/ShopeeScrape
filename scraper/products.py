@@ -6,6 +6,12 @@ from pprint import pp
 class AbstractAPI:
     @staticmethod
     def URLEncodeQuery(**kwargs):
+        """Encodes values to URL-friendly strings
+        Ex. query="Redmi Phone" => {'query': 'Redmi%20Phone'}
+
+        Returns:
+            dict: object containing kwargs and URL-encoded kwarg values
+        """
         for kwarg in kwargs:
             kwargs[kwarg] = quote(kwargs[kwarg])
         return kwargs
@@ -17,6 +23,15 @@ class ShopeeAPI(AbstractAPI):
 
     def getProducts(self, **kwargs):
         def filterData(item, valid_fields=None):
+            """receives an item JSON from the Shopee API and removes unecessary fields
+
+            Args:
+                item (dict): dict-like object with data on a Shopee item
+                valid_fields (iterable, optional): any iterable containing values to keep. Defaults to None.
+
+            Returns:
+                dict: The same dict-like object, retaining only the relevant fields
+            """
             if not valid_fields:
                 valid_fields = (
                     "name",
