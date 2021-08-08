@@ -3,47 +3,57 @@ from urllib.parse import quote, unquote
 from pprint import pp
 
 
-def get_products(query, by="relevance", limit=10):
-    # encode search query to URL-friendly format
-    query = quote(query)
+class AbstractAPI:
+    @staticmethod
+    def URLEncodeQuery(**kwargs):
+        for kwarg in kwargs:
+            kwargs[kwarg] = quote(kwargs[kwarg])
+        return kwargs
 
-    # call Shopee API
-    response = requests.get(
-        f"https://shopee.ph/api/v4/search/search_items?by={by}&keyword={query}&limit={limit}&newest=0&order=desc&page_type=search&scenario=PAGE_GLOBAL_SEARCH&version=2"
-    ).json()
 
-    # list of items returned by API
-    products = response["items"]
+class ShopeeAPI(AbstractAPI):
+    def __init__(self):
+        self.endpoints = {"products": "https://shopee.ph/api/v4/search/search_items"}
 
-    # the data that I (arbitrarily) choose to be relevant and worth keeping
-    fields_to_keep = (
-        "name",
-        "shopid",
-        "itemid",
-        "stock",
-        "sold",
-        "historical_sold",
-        "liked_count",
-        "view_count",
-        "cmt_count",
-        "price",
-        "price_min",
-        "price_max",
-        "price_before_discount",
-        "has_lowest_price_guarantee",
-        "raw_discount",
-        "shopee_verified",
-        "is_official_shop",
-        "is_preferred_plus_seller",
-        "shop_location",
-        "is_on_flash_sale",
-        "image",
-        "item_rating",
-    )
+    def getProducts(self, **kwargs):
+        def filterData(item, valid_fields=None):
+            if not valid_fields:
+                valid_fields = (
+                    "name",
+                    "itemid",
+                    "shopid",
+                    "price",
+                    "price_min",
+                    "price_max",
+                    "price_before_discount",
+                    "raw_discount",
+                    "has_lowest_price_guarantee",
+                    "stock",
+                    "sold",
+                    "historical_sold",
+                    "liked_count",
+                    "view_count",
+                    "cmt_count",
+                    "shopee_verified",
+                    "is_official_shop",
+                    "is_preferred_plus_seller",
+                    "shop_location",
+                    "is_on_flash_sale",
+                    "image",
+                    "item_rating",
+                )
 
-    for product in products:
-        # bring out all the item data
-        result = product["item_basic"]
+            item["item_rating"] = item["item_rating"]["rating_star"]
+            return {field: item[field] for field in valid_fields}
+
+        endpoint = self.endpoints["products"]
+        params = AbstractAPI.URLEncodeQuery(**kwargs)
+
+        response = requests.get(url=endpoint, params=kwargs).json()
+        products = response["items"]
+        for product in products:
+            result = product["item_basic"]
+            yield filterData(result)
 
         # by default, item ratings are formatted like this
         # "item_rating":{
