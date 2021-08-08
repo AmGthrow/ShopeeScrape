@@ -4,7 +4,7 @@ from urllib.parse import quote
 
 class AbstractAPI:
     @staticmethod
-    def URLEncodeQuery(**kwargs):
+    def urlEncodeQuery(**kwargs):
         """Encodes values to URL-friendly strings
         Ex. query="Redmi Phone" => {'query': 'Redmi%20Phone'}
 
@@ -20,7 +20,7 @@ class ShopeeAPI(AbstractAPI):
     def __init__(self):
         self.endpoints = {"products": "https://shopee.ph/api/v4/search/search_items"}
 
-    def getProducts(self, **kwargs):
+    def search(self, **kwargs):
         def filterData(item, valid_fields=None):
             """receives an item JSON from the Shopee API and removes unecessary fields
 
@@ -77,7 +77,7 @@ class ShopeeAPI(AbstractAPI):
             return {field: item[field] for field in valid_fields}
 
         endpoint = self.endpoints["products"]
-        params = AbstractAPI.URLEncodeQuery(**kwargs)
+        params = AbstractAPI.urlEncodeQuery(**kwargs)
 
         response = requests.get(url=endpoint, params=kwargs).json()
         # list of items returned by the API
@@ -90,7 +90,7 @@ class ShopeeAPI(AbstractAPI):
 
 def main():
     shopee = ShopeeAPI()
-    results = shopee.getProducts(keyword="redmi note 9", by="relevance")
+    results = shopee.search(keyword="redmi note 9", by="relevance")
     for result in results:
         print(result)
 
