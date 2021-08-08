@@ -1,6 +1,5 @@
 import requests
-from urllib.parse import quote, unquote
-from pprint import pp
+from urllib.parse import quote
 
 
 class AbstractAPI:
@@ -65,12 +64,12 @@ class ShopeeAPI(AbstractAPI):
             # "item_rating":{
             #    "rating_star":4.764309764309765,
             #    "rating_count":[
-            #       307,
-            #       6,
-            #       5,
+            #       307,    # total ratings
+            #       6,      # 1 star ratings
+            #       5,      # 2 star ratings
             #       8,
             #       15,
-            #       273
+            #       273     # 5 star ratings
             #    ]
             # instead of all that, I want to extract exclusively the rating_star value (average rating)
             item["item_rating"] = item["item_rating"]["rating_star"]
@@ -93,7 +92,7 @@ def main():
     shopee = ShopeeAPI()
     results = shopee.getProducts(keyword="redmi note 9", by="relevance")
     for result in results:
-        pp(result, width=500)
+        print(result)
 
 
 if __name__ == "__main__":
