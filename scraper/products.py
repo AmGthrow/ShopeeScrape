@@ -19,6 +19,7 @@ def get_products(query, by="relevance", limit=10):
     fields_to_keep = (
         "name",
         "shopid",
+        "itemid",
         "stock",
         "sold",
         "historical_sold",
