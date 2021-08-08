@@ -1,8 +1,11 @@
 import unittest
-from scraper import scraper
+from scraper import products
 
-class TestScraper(unittest.TestCase):
-    def setUp(self) -> None:
-        self.query = "hyperx cloud stinger"
-        self.scrape_results = scraper.scrape(self.query)
 
+class TestQueries(unittest.TestCase):
+    def testEncodeKwargs(self):
+        test_result = products.AbstractAPI.URLEncodeQuery(name="redmi note 10")
+        self.assertEqual(
+            test_result,
+            {"name": "redmi%20note%2010"},
+        )
