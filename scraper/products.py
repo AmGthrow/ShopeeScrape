@@ -32,6 +32,7 @@ class ShopeeAPI(AbstractAPI):
             Returns:
                 dict: The same dict-like object, retaining only the relevant fields
             """
+            # the data I choose to be relevant and worth keeping by default
             if not valid_fields:
                 valid_fields = (
                     "name",
@@ -58,36 +59,34 @@ class ShopeeAPI(AbstractAPI):
                     "item_rating",
                 )
 
+            # create a new field item_rating to get the item's rating score
+
+            # by default, item ratings are formatted like this
+            # "item_rating":{
+            #    "rating_star":4.764309764309765,
+            #    "rating_count":[
+            #       307,
+            #       6,
+            #       5,
+            #       8,
+            #       15,
+            #       273
+            #    ]
+            # instead of all that, I want to extract exclusively the rating_star value (average rating)
             item["item_rating"] = item["item_rating"]["rating_star"]
+            # delete all unimportant fields
             return {field: item[field] for field in valid_fields}
 
         endpoint = self.endpoints["products"]
         params = AbstractAPI.URLEncodeQuery(**kwargs)
 
         response = requests.get(url=endpoint, params=kwargs).json()
+        # list of items returned by the API
         products = response["items"]
         for product in products:
+            # item's data
             result = product["item_basic"]
             yield filterData(result)
-
-        # by default, item ratings are formatted like this
-        # "item_rating":{
-        #    "rating_star":4.764309764309765,
-        #    "rating_count":[
-        #       307,
-        #       6,
-        #       5,
-        #       8,
-        #       15,
-        #       273
-        #    ]
-        # instead of all that, I want to extract exclusively the rating_star value (average rating)
-        result["item_rating"] = result["item_rating"]["rating_star"]
-
-        # delete all unimportant fields
-        result = {field: result[field] for field in fields_to_keep}
-
-        yield result
 
 
 def main():
