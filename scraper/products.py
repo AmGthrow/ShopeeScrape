@@ -27,8 +27,7 @@ class AbstractAPI:
 
 
 class ShopeeAPI(AbstractAPI):
-    def __init__(self):
-        self.endpoints = {"products": "https://shopee.ph/api/v4/search/search_items"}
+    endpoints = {"products": "https://shopee.ph/api/v4/search/search_items"}
 
     def search(self, **kwargs):
         def filterData(item, valid_fields=None):
@@ -86,7 +85,7 @@ class ShopeeAPI(AbstractAPI):
             # delete all unimportant fields
             return {field: item[field] for field in valid_fields}
 
-        endpoint = self.endpoints["products"]
+        endpoint = ShopeeAPI.endpoints["products"]
         params = AbstractAPI.urlEncodeQuery(**kwargs)
 
         response = requests.get(url=endpoint, params=kwargs)
