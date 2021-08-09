@@ -41,7 +41,7 @@ class ShopeeAPI(AbstractAPI):
     endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
 
     def search(self, **kwargs):
-        def filterData(item, valid_fields=None):
+        def filter_data(item, valid_fields=None):
             """receives an item JSON from the Shopee API and removes unecessary fields
 
             Args:
@@ -110,4 +110,4 @@ class ShopeeAPI(AbstractAPI):
             search_logger.info(f"Got item {result['itemid']}: {result['name']}")
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
-            yield filterData(result)
+            yield filter_data(result)
