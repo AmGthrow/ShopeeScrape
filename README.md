@@ -6,7 +6,7 @@ Web scraper to extract and record prices of items on the e-commerce website "Sho
 First, create a connection to the Shopee website and begin searching like this:
 
 ```
-from scraper.products import ShopeeAPI
+from scrapers.shops import ShopeeAPI
 shopee = ShopeeAPI()
 shopee.search()
 ```
