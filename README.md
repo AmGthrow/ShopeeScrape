@@ -21,4 +21,5 @@ The `search()` function accepts multiple keyword arguments to narrow down search
 | preferred    | true,false                  | Only retrieve results from preferred sellers                          |
 | minPrice     | \<int\>                     | Only retrieve results with price greater than the given int           |
 | maxPrice     | \<int\>                     | Only retrieve results with price less than the given int              |
+| limit        | \<int\>                     | Limit number of results to given int                                  |
 | ratingFilter | 1,2,3,4,5                   | Average rating must be higher than the given int                      |
