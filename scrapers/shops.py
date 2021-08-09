@@ -30,7 +30,10 @@ class AbstractAPI:
             dict: object containing kwargs and URL-encoded kwarg values
         """
         for kwarg in kwargs:
-            kwargs[kwarg] = quote(kwargs[kwarg])
+            try:
+                kwargs[kwarg] = quote(str(kwargs[kwarg]))
+            except:
+                search_logger.exception(f"Could not url-encode kwarg: {kwargs[kwarg]}")
         return kwargs
 
 
