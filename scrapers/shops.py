@@ -2,14 +2,22 @@ import requests
 import logging
 from urllib.parse import quote
 
-logger = logging.Logger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger for recording searches and results
+search_logger = logging.Logger(__name__)
+search_logger.setLevel(logging.DEBUG)
+
+# logger to record flash sales
+flash_logger = logging.Logger(__name__)
+flash_logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(levelname)s - %(asctime)s - %(message)s")
-handler = logging.FileHandler("./logs/searches.log")
-handler.setFormatter(formatter)
+search_handler = logging.FileHandler("./logs/searches.log")
+flash_handler = logging.FileHandler("./logs/flash_sales.log")
+search_handler.setFormatter(formatter)
+flash_handler.setFormatter(formatter)
 
-logger.addHandler(handler)
+search_logger.addHandler(search_handler)
+flash_logger.addHandler(flash_handler)
 
 
 class AbstractAPI:
@@ -49,6 +57,7 @@ class ShopeeAPI(AbstractAPI):
                     "price",
                     "price_min",
                     "price_max",
+                    "is_on_flash_sale",
                     "price_before_discount",
                     "raw_discount",
                     "has_lowest_price_guarantee",
@@ -62,7 +71,6 @@ class ShopeeAPI(AbstractAPI):
                     "is_official_shop",
                     "is_preferred_plus_seller",
                     "shop_location",
-                    "is_on_flash_sale",
                     "image",
                     "item_rating",
                 )
@@ -89,12 +97,14 @@ class ShopeeAPI(AbstractAPI):
         params = AbstractAPI.urlEncodeQuery(**kwargs)
 
         response = requests.get(url=endpoint, params=kwargs)
-        logger.info(f"Sent request to {response.url}")
+        search_logger.info(f"Sent request to {response.url}")
         response = response.json()
         # list of items returned by the API
         items = response["items"]
         for item in items:
             # item's data
             result = item["item_basic"]
-            logger.info(f"Got item {result['itemid']}: {result['name']}")
+            search_logger.info(f"Got item {result['itemid']}: {result['name']}")
+            if result["is_on_flash_sale"]:
+                flash_logger.info(f"FLASH SALE: {result['name']}")
             yield filterData(result)
