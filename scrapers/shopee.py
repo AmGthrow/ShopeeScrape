@@ -1,6 +1,7 @@
 import requests
 import logging
 import utils
+from slugify import slugify
 
 # logger for recording searches and results
 search_logger = logging.Logger(__name__)
@@ -77,6 +78,28 @@ def _filter_search_data(item, valid_fields=None):
     item["item_rating"] = item["item_rating"]["rating_star"]
     # delete all unimportant fields
     return {field: item[field] for field in valid_fields}
+
+
+def get_item_link(name, itemid, shopid):
+    """Generates a valid link to the item's Shopee page
+
+    Given the necessary arguments, constructs the item's
+    URL in Shopee using the following convention:
+    https://shopee.ph/<item-name-separated-by-hyphens>-i.<shopid>.<itemid>
+
+    Ex. https://shopee.ph/Psicom-Killer-Game-by-Penguin20-i.56563909.1484895861
+
+    Args:
+        name (str): Item's name
+        itemid (int): ItemID, from ShopeeAPI
+        shopid (int): ShopID of the seller, from ShopeeAPI
+
+     Returns:
+        str: URL to the Shopee page
+    """
+    # separate all spaces in item name with a dash
+    url_name = slugify(name)
+    return f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
 
 
 def search(valid_fields=None, **kwargs):
