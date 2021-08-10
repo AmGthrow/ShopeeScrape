@@ -111,3 +111,8 @@ class ShopeeAPI(AbstractAPI):
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
             yield filter_data(result)
+
+
+def search_shopee(**kwargs):
+    shopee = ShopeeAPI()
+    yield from shopee.search(**kwargs)
