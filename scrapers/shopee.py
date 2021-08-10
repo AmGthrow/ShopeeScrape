@@ -1,6 +1,6 @@
 import requests
 import logging
-from urllib.parse import quote
+import utils
 
 # logger for recording searches and results
 search_logger = logging.Logger(__name__)
@@ -18,21 +18,6 @@ flash_handler.setFormatter(formatter)
 
 search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
-
-
-def URLEncodeQuery(**kwargs):
-    """Encodes values to URL-friendly strings
-    Ex. query="Redmi Phone" => {'query': 'Redmi%20Phone'}
-
-    Returns:
-        dict: object containing kwargs and URL-encoded kwarg values
-    """
-    for kwarg in kwargs:
-        try:
-            kwargs[kwarg] = quote(str(kwargs[kwarg]))
-        except:
-            search_logger.exception(f"Could not url-encode kwarg: {kwargs[kwarg]}")
-    return kwargs
 
 
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
@@ -97,7 +82,7 @@ def _filter_search_data(item, valid_fields=None):
 def search(valid_fields=None, **kwargs):
 
     endpoint = endpoints["search"]
-    params = URLEncodeQuery(**kwargs)
+    params = utils.URLEncodeQuery(**kwargs)
 
     response = requests.get(url=endpoint, params=kwargs)
     search_logger.info(f"Sent request to {response.url}")

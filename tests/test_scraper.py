@@ -1,10 +1,11 @@
 import unittest
 from scrapers import shopee
+import utils
 
 
 class TestAPI(unittest.TestCase):
     def testEncodeKwargs(self):
-        test_result = shopee.URLEncodeQuery(name="redmi note 10")
+        test_result = utils.URLEncodeQuery(name="redmi note 10")
         self.assertEqual(
             test_result,
             {"name": "redmi%20note%2010"},
