@@ -12,8 +12,8 @@ flash_logger = logging.Logger(__name__)
 flash_logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(levelname)s - %(asctime)s - %(message)s")
-search_handler = logging.FileHandler("./logs/searches.log", encoding="utf-8")
-flash_handler = logging.FileHandler("./logs/flash_sales.log", encoding="utf-8")
+search_handler = logging.FileHandler("./logs/shopee/searches.log", encoding="utf-8")
+flash_handler = logging.FileHandler("./logs/shopee/flash_sales.log", encoding="utf-8")
 search_handler.setFormatter(formatter)
 flash_handler.setFormatter(formatter)
 
