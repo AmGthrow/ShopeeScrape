@@ -3,6 +3,8 @@ import logging
 import utils
 from slugify import slugify
 
+# ? it is absolutely disgusting to configure logging inside here,
+# ? migrate logging conf settings to the main app instead of the module
 # logger for recording searches and results
 search_logger = logging.Logger(__name__)
 search_logger.setLevel(logging.DEBUG)
@@ -103,13 +105,14 @@ def get_item_link(name, itemid, shopid):
     return f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
 
 
-def search(valid_fields=None, **kwargs):
+def search(log_results=True, valid_fields=None, **kwargs):
 
     endpoint = endpoints["search"]
     params = utils.URLEncodeQuery(**kwargs)
 
     response = requests.get(url=endpoint, params=kwargs)
-    search_logger.info(f"Sent request to {response.url}")
+    if log_results:
+        search_logger.info(f"Sent request to {response.url}")
     response = response.json()
 
     # list of items returned by the API
@@ -117,12 +120,13 @@ def search(valid_fields=None, **kwargs):
     for item in items:
         # item's data
         result = item["item_basic"]
-        short_name = result['name'][:60]
-        if len(result['name']) >= 60:
-            short_name += '...'
-        search_logger.info(
-            f"Got item {short_name} ({get_item_link(result['name'],result['itemid'],result['shopid'])})"
-        )
-        if result["is_on_flash_sale"]:
-            flash_logger.info(f"FLASH SALE: {result['name']}")
+        if log_results:
+            short_name = result['name'][:60]
+            if len(result['name']) >= 60:
+                short_name += '...'
+            search_logger.info(
+                f"Got item {short_name} ({get_item_link(result['name'],result['itemid'],result['shopid'])})"
+            )
+            if result["is_on_flash_sale"]:
+                flash_logger.info(f"FLASH SALE: {result['name']}")
         yield _filter_search_data(result, valid_fields)
