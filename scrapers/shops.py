@@ -1,6 +1,7 @@
 import requests
 import logging
 from urllib.parse import quote
+from abc import ABC, abstractmethod
 
 # logger for recording searches and results
 search_logger = logging.Logger(__name__)
@@ -20,7 +21,11 @@ search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
 
 
-class AbstractAPI:
+class AbstractAPI(ABC):
+    @abstractmethod
+    def search(self):
+        pass
+
     @staticmethod
     def URLEncodeQuery(**kwargs):
         """Encodes values to URL-friendly strings
