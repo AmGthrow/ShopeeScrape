@@ -52,7 +52,7 @@ class ShopeeAPI(AbstractAPI):
                 dict: The same dict-like object, retaining only the relevant fields
             """
             # the data I choose to be relevant and worth keeping by default
-            if not valid_fields:
+        if valid_fields is None:
                 valid_fields = (
                     "name",
                     "itemid",
