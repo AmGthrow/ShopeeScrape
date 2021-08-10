@@ -22,7 +22,7 @@ flash_logger.addHandler(flash_handler)
 
 class AbstractAPI:
     @staticmethod
-    def urlEncodeQuery(**kwargs):
+    def URLEncodeQuery(**kwargs):
         """Encodes values to URL-friendly strings
         Ex. query="Redmi Phone" => {'query': 'Redmi%20Phone'}
 
@@ -97,7 +97,7 @@ class ShopeeAPI(AbstractAPI):
             return {field: item[field] for field in valid_fields}
 
         endpoint = ShopeeAPI.endpoints["search"]
-        params = AbstractAPI.urlEncodeQuery(**kwargs)
+        params = AbstractAPI.URLEncodeQuery(**kwargs)
 
         response = requests.get(url=endpoint, params=kwargs)
         search_logger.info(f"Sent request to {response.url}")
