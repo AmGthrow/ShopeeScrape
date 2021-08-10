@@ -102,7 +102,7 @@ class ShopeeAPI(AbstractAPI):
         return {field: item[field] for field in valid_fields}
 
     @classmethod
-    def search(cls, **kwargs):
+    def search(cls, valid_fields=None, **kwargs):
 
         endpoint = cls.endpoints["search"]
         params = cls.URLEncodeQuery(**kwargs)
@@ -119,4 +119,4 @@ class ShopeeAPI(AbstractAPI):
             search_logger.info(f"Got item {result['itemid']}: {result['name']}")
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
-            yield cls._filter_search_data(result)
+            yield cls._filter_search_data(result, valid_fields)
