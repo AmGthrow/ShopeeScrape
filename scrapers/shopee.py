@@ -12,14 +12,15 @@ flash_logger = logging.Logger(__name__)
 flash_logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(levelname)s - %(asctime)s - %(message)s")
-search_handler = logging.FileHandler("./logs/shopee/searches.log", encoding="utf-8")
-flash_handler = logging.FileHandler("./logs/shopee/flash_sales.log", encoding="utf-8")
+search_handler = logging.FileHandler("./logs/shopee/searches.log",
+                                     encoding="utf-8")
+flash_handler = logging.FileHandler("./logs/shopee/flash_sales.log",
+                                    encoding="utf-8")
 search_handler.setFormatter(formatter)
 flash_handler.setFormatter(formatter)
 
 search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
-
 
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
 
@@ -116,7 +117,12 @@ def search(valid_fields=None, **kwargs):
     for item in items:
         # item's data
         result = item["item_basic"]
-        search_logger.info(f"Got item {result['itemid']}: {result['name']}")
+        short_name = result['name'][:60]
+        if len(result['name']) >= 60:
+            short_name += '...'
+        search_logger.info(
+            f"Got item {short_name} ({get_item_link(result['name'],result['itemid'],result['shopid'])})"
+        )
         if result["is_on_flash_sale"]:
             flash_logger.info(f"FLASH SALE: {result['name']}")
         yield _filter_search_data(result, valid_fields)
