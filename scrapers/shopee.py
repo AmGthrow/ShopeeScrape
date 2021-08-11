@@ -138,12 +138,16 @@ def search(log_results=True, valid_fields=None, **kwargs):
         # item's data
         result = item["item_basic"]
         if log_results:
+
+            # log search result
             short_name = result['name'][:60]
             if len(result['name']) >= 60:
                 short_name += '...'
             search_logger.info(
                 f"Got item {short_name} ({get_item_link(result['name'],result['itemid'],result['shopid'])})"
             )
+            # log in case it's a flash sale too
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
+
         yield _filter_search_data(result, valid_fields)
