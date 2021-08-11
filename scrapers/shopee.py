@@ -106,7 +106,24 @@ def get_item_link(name, itemid, shopid):
 
 
 def search(log_results=True, valid_fields=None, **kwargs):
+    """Performs a search query on Shopee and yields the results as a generator
 
+    Performs a get request on the Shopee API's search endpoint and supplies the 
+    given kwargs as parameters. Filters the resulting response by discarding
+    any fields that aren't inside of the valid_fields iterable. 
+
+    Note: This also automatically discards the number of 1,2,3,...5 star ratings 
+    of an item and only keeps the average rating score (see _filter_search_data())
+
+    Args:
+        log_results (bool, optional): Whether to log search results
+        and flash sales to log files. Defaults to True.
+        valid_fields (iterable, optional): All the fields you're 
+        interested in and want to keep the data for. Defaults to None.
+
+    Yields:
+        [type]: [description]
+    """
     endpoint = endpoints["search"]
     params = utils.URLEncodeQuery(**kwargs)
 
