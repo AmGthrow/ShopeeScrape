@@ -1,8 +1,8 @@
 import sqlite3
 
 
-def create_db():
-    with sqlite3.connect("shops.db") as conn:
+def create_db(db_path="shops.db"):
+    with sqlite3.connect(db_path) as conn:
         conn.execute("""CREATE TABLE IF NOT EXISTS `ShopeeProducts` (
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP, 
             name TEXT,
