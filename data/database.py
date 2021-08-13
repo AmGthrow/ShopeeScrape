@@ -45,6 +45,7 @@ class ShopeeDatabase(CommerceDatabase):
             ) """)
 
     def add_items(self, item):
+        try:
         with self.conn:
             self.conn.executemany(
                 """INSERT INTO `ShopeeProducts`(
@@ -62,3 +63,7 @@ class ShopeeDatabase(CommerceDatabase):
                     :shopee_verified, :is_official_shop, :is_preferred_plus_seller,
                     :shop_location, :image, :item_rating
                 )""", item)
+        except sqlite3.OperationalError:
+            print(
+                "Table for Shopee items does not exist yet. Please initialize with "
+                "ShopeeDatabase.create_tables()")
