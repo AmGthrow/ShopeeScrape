@@ -44,3 +44,9 @@ def create_db(db_path="shops.db"):
         ) """)
 
 
+def main():
+    create_db()
+
+
+if __name__ == "__main__":
+    main()
