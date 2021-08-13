@@ -44,7 +44,7 @@ class ShopeeDatabase(CommerceDatabase):
                 item_rating REAL
             ) """)
 
-    def record_items(self, item):
+    def add_items(self, item):
         with self.conn:
             self.conn.executemany(
                 """INSERT INTO `ShopeeProducts`(
