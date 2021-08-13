@@ -1,4 +1,18 @@
 import sqlite3
+from abc import ABC, abstractmethod
+
+
+class CommerceDatabase(ABC):
+    def __init__(self, db_path=":memory:"):
+        self.conn = sqlite3.connect(db_path)
+
+    def query(self, query):
+        with self.conn:
+            return self.conn.execute(query)
+
+    @abstractmethod
+    def create_tables(self):
+        pass
 
 
 def create_db(db_path="shops.db"):
