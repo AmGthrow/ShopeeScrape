@@ -27,7 +27,7 @@ flash_logger.addHandler(flash_handler)
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
 
 
-def _filter_search_data(item, valid_fields=None):
+def _filter_search_data(item, valid_fields=None, simple_rating=True):
     """receives an item JSON from the Shopee API and removes unecessary fields
 
     Args:
@@ -39,30 +39,14 @@ def _filter_search_data(item, valid_fields=None):
     """
     # the data I choose to be relevant and worth keeping by default
     if valid_fields is None:
-        valid_fields = (
-            "name",
-            "itemid",
-            "shopid",
-            "price",
-            "price_min",
-            "price_max",
-            "price_before_discount",
-            "raw_discount",
-            "stock",
-            "sold",
-            "historical_sold",
-            "liked_count",
-            "view_count",
-            "cmt_count",
-            "is_on_flash_sale",
-            "has_lowest_price_guarantee",
-            "shopee_verified",
-            "is_official_shop",
-            "is_preferred_plus_seller",
-            "shop_location",
-            "image",
-            "item_rating",
-        )
+        valid_fields = ("name", "itemid", "shopid", "price", "price_min",
+                        "price_max", "price_before_discount", "raw_discount",
+                        "stock", "sold", "historical_sold", "liked_count",
+                        "view_count", "cmt_count", "is_on_flash_sale",
+                        "has_lowest_price_guarantee", "shopee_verified",
+                        "is_official_shop", "is_preferred_plus_seller",
+                        "shop_location", "image", "item_rating",
+                        "rating_count")
 
     # create a new field item_rating to get the item's rating score
 
@@ -78,8 +62,9 @@ def _filter_search_data(item, valid_fields=None):
     #       273     # 5 star ratings
     #    ]
     # instead of all that, I want to extract exclusively the rating_star value (average rating)
-    item["rating_count"] = item["item_rating"]["rating_count"][0]
-    item["item_rating"] = item["item_rating"]["rating_star"]
+    if simple_rating:
+        item["rating_count"] = item["item_rating"]["rating_count"][0]
+        item["item_rating"] = item["item_rating"]["rating_star"]
     # delete all unimportant fields
     return {field: item[field] for field in valid_fields}
 
