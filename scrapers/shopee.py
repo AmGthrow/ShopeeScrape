@@ -78,6 +78,7 @@ def _filter_search_data(item, valid_fields=None):
     #       273     # 5 star ratings
     #    ]
     # instead of all that, I want to extract exclusively the rating_star value (average rating)
+    item["rating_count"] = item["item_rating"]["rating_count"][0]
     item["item_rating"] = item["item_rating"]["rating_star"]
     # delete all unimportant fields
     return {field: item[field] for field in valid_fields}
