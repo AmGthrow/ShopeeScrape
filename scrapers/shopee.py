@@ -33,6 +33,11 @@ def _filter_search_data(item, valid_fields=None, simple_rating=True):
     Args:
         item (dict): dict-like object with data on a Shopee item
         valid_fields (iterable, optional): any iterable containing values to keep. Defaults to None.
+        simple_rating (bool, optional): Simplifies rating data to 2 values, 
+            1) item_rating (average rating score)
+            2) rating_conut (number of ratings received by the item)
+            Defaults to True.
+
 
     Returns:
         dict: The same dict-like object, retaining only the relevant fields
