@@ -1,6 +1,7 @@
 import requests
 import logging
 import utils
+import json
 from slugify import slugify
 
 # ? it is absolutely disgusting to configure logging inside here,
@@ -25,61 +26,65 @@ search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
 
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
+valid_fields = _get_valid_fields()
 
 
-def _filter_search_data(item, valid_fields=None):
+def _get_valid_fields():
+    """Retrieves the list of fields that the scraper is meant to store
+
+    Retrieves a list of field names from a config.json file. Field names 
+    must match names returned by the Shopee API when performing a search request
+
+    Returns:
+        [str]: list of strings containing the names of valid fields
+    """
+    return json.load('config.json')['scrapers']['shopee']['valid_fields']
+
+
+def flatten(item):
+    """Flattens the nested rating data in a Shopee item's JSON and makes it 
+    one-dimensional
+
+
+    by default, item ratings are formatted like this
+
+    "item_rating":{
+       "rating_star":4.764309764309765,     # average rating
+       "rating_count":[
+          307,    # total ratings
+          6,      # 1 star ratings
+          5,      # 2 star ratings
+          8,      # 3 star ratings
+          15,     # 4 star ratings
+          273     # 5 star ratings
+       ]
+    }
+
+    instead of all that, I want to extract exclusively the rating_star value (average rating)
+
+    Args:
+        item (dict): dict object with data on a Shopee item 
+
+    Returns:
+        dict: The same dict object, except the rating_count and item_rating are 
+        de-nested
+
+    """
+    item["rating_count"] = item["item_rating"]["rating_count"][0]
+    item["item_rating"] = item["item_rating"]["rating_star"]
+
+    return item
+
+
+def filter(item):
     """receives an item JSON from the Shopee API and removes unecessary fields
 
     Args:
-        item (dict): dict-like object with data on a Shopee item
-        valid_fields (iterable, optional): any iterable containing values to keep. Defaults to None.
+        item (dict): dict object with data on a Shopee item
 
     Returns:
-        dict: The same dict-like object, retaining only the relevant fields
+        dict: The same dict object, retaining only the relevant fields
     """
-    # the data I choose to be relevant and worth keeping by default
-    if valid_fields is None:
-        valid_fields = (
-            "name",
-            "itemid",
-            "shopid",
-            "price",
-            "price_min",
-            "price_max",
-            "price_before_discount",
-            "raw_discount",
-            "stock",
-            "sold",
-            "historical_sold",
-            "liked_count",
-            "view_count",
-            "cmt_count",
-            "is_on_flash_sale",
-            "has_lowest_price_guarantee",
-            "shopee_verified",
-            "is_official_shop",
-            "is_preferred_plus_seller",
-            "shop_location",
-            "image",
-            "item_rating",
-        )
-
-    # create a new field item_rating to get the item's rating score
-
-    # by default, item ratings are formatted like this
-    # "item_rating":{
-    #    "rating_star":4.764309764309765,
-    #    "rating_count":[
-    #       307,    # total ratings
-    #       6,      # 1 star ratings
-    #       5,      # 2 star ratings
-    #       8,
-    #       15,
-    #       273     # 5 star ratings
-    #    ]
-    # instead of all that, I want to extract exclusively the rating_star value (average rating)
-    item["item_rating"] = item["item_rating"]["rating_star"]
-    # delete all unimportant fields
     return {field: item[field] for field in valid_fields}
 
 
@@ -105,24 +110,25 @@ def get_item_link(name, itemid, shopid):
     return f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
 
 
-def search(log_results=True, valid_fields=None, **kwargs):
+def search(filter_results=True,
+           flatten_results=True,
+           log_results=True,
+           **kwargs):
     """Performs a search query on Shopee and yields the results as a generator
 
-    Performs a get request on the Shopee API's search endpoint and supplies the 
-    given kwargs as parameters. Filters the resulting response by discarding
-    any fields that aren't inside of the valid_fields iterable. 
-
-    Note: This also automatically discards the number of 1,2,3,...5 star ratings 
-    of an item and only keeps the average rating score (see _filter_search_data())
+    Performs a get request on the Shopee API's search endpoint and supplies 
+    given kwargs as parameters. 
 
     Args:
+        filter_results (bool, optional): Whether to apply the filter()
+        function to the resulting search data. Defaults to True.
+        flatten_results (bool, optional): Whether to apply the flatten()
+        function to the resulting search data. Defaults to True. 
         log_results (bool, optional): Whether to log search results
         and flash sales to log files. Defaults to True.
-        valid_fields (iterable, optional): All the fields you're 
-        interested in and want to keep the data for. Defaults to None.
 
     Yields:
-        [type]: [description]
+        dict: JSON containing the resulting item's data 
     """
     endpoint = endpoints["search"]
     params = utils.URLEncodeQuery(**kwargs)
@@ -149,5 +155,8 @@ def search(log_results=True, valid_fields=None, **kwargs):
             # log in case it's a flash sale too
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
-
-        yield _filter_search_data(result, valid_fields)
+        if filter_results:
+            result = filter(result)
+        if flatten_results:
+            result = flatten(result)
+        yield result
