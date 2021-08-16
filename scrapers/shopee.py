@@ -26,7 +26,6 @@ search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
 
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
-valid_fields = _get_valid_fields()
 
 
 def _get_valid_fields():
@@ -148,17 +147,16 @@ def search(filter_results=True,
     response = requests.get(url=endpoint, params=kwargs)
     if log_results:
         search_logger.info(f"Sent request to {response.url}")
-    response = response.json()
 
     # list of items returned by the API
-    items = response["items"]
+    items = response.json()["items"]
     for item in items:
         # item's data
         result = item["item_basic"]
         if log_results:
-
             # log search result
             short_name = result['name'][:60]
+            # shorten name if it's too long
             if len(result['name']) >= 60:
                 short_name += '...'
             search_logger.info(
