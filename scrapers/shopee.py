@@ -40,7 +40,7 @@ def _get_valid_fields():
     return json.load('config.json')['scrapers']['shopee']['valid_fields']
 
 
-def _filter_search_data(item, valid_fields=None, simple_rating=True):
+def _filter_search_data(item, valid_fields=None):
     """receives an item JSON from the Shopee API and removes unecessary fields
 
     Args:
@@ -80,9 +80,8 @@ def _filter_search_data(item, valid_fields=None, simple_rating=True):
     #       273     # 5 star ratings
     #    ]
     # instead of all that, I want to extract exclusively the rating_star value (average rating)
-    if simple_rating:
-        item["rating_count"] = item["item_rating"]["rating_count"][0]
-        item["item_rating"] = item["item_rating"]["rating_star"]
+    item["rating_count"] = item["item_rating"]["rating_count"][0]
+    item["item_rating"] = item["item_rating"]["rating_star"]
     # delete all unimportant fields
     return {field: item[field] for field in valid_fields}
 
