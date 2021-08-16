@@ -1,6 +1,7 @@
 import requests
 import logging
 import utils
+import json
 from slugify import slugify
 
 # ? it is absolutely disgusting to configure logging inside here,
@@ -25,6 +26,18 @@ search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
 
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
+
+
+def _get_valid_fields():
+    """Retrieves the list of fields that the scraper is meant to store
+
+    Retrieves a list of field names from a config.json file. Field names 
+    must match names returned by the Shopee API when performing a search request
+
+    Returns:
+        [str]: list of strings containing the names of valid fields
+    """
+    return json.load('config.json')['scrapers']['shopee']['valid_fields']
 
 
 def _filter_search_data(item, valid_fields=None, simple_rating=True):
