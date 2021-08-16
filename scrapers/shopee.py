@@ -41,7 +41,7 @@ def _get_valid_fields():
     return json.load('config.json')['scrapers']['shopee']['valid_fields']
 
 
-def flatten(item):
+def flatten_search_results(item):
     """Flattens the nested rating data in a Shopee item's JSON and makes it 
     one-dimensional
 
@@ -76,7 +76,7 @@ def flatten(item):
     return item
 
 
-def filter(item):
+def filter_search_results(item):
     """receives an item JSON from the Shopee API and removes unecessary fields
 
     Args:
@@ -120,9 +120,9 @@ def search(filter_results=True,
     given kwargs as parameters. 
 
     Args:
-        filter_results (bool, optional): Whether to apply the filter()
+        filter_results (bool, optional): Whether to apply the filter_search_results()
         function to the resulting search data. Defaults to True.
-        flatten_results (bool, optional): Whether to apply the flatten()
+        flatten_results (bool, optional): Whether to apply the flatten_search_results()
         function to the resulting search data. Defaults to True. 
         log_results (bool, optional): Whether to log search results
         and flash sales to log files. Defaults to True.
@@ -155,8 +155,8 @@ def search(filter_results=True,
             # log in case it's a flash sale too
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
-        if filter_results:
-            result = filter(result)
         if flatten_results:
-            result = flatten(result)
+            result = flatten_search_results(result)
+        if filter_results:
+            result = filter_search_results(result)
         yield result
