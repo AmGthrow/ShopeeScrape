@@ -38,7 +38,10 @@ def _get_valid_fields():
     Returns:
         [str]: list of strings containing the names of valid fields
     """
-    return json.load('config.json')['scrapers']['shopee']['valid_fields']
+    return json.load(open('config.json'))['scrapers']['shopee']['valid_fields']
+
+
+valid_fields = _get_valid_fields()
 
 
 def flatten_search_results(item):
