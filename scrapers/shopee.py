@@ -28,7 +28,7 @@ flash_logger.addHandler(flash_handler)
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
 
 
-def _get_valid_fields() -> [str]:
+def get_valid_fields() -> [str]:
     """Retrieves the list of fields that the scraper is meant to store
 
     Retrieves a list of field names from a config.json file. Field names 
@@ -40,7 +40,7 @@ def _get_valid_fields() -> [str]:
     return json.load(open('config.json'))['scrapers']['shopee']['valid_fields']
 
 
-valid_fields: [str] = _get_valid_fields()
+valid_fields: [str] = get_valid_fields()
 
 
 def flatten_search_results(item: dict) -> dict:

@@ -1,4 +1,5 @@
 import sqlite3
+from scrapers import shopee
 from abc import ABC, abstractmethod
 
 
@@ -16,8 +17,11 @@ class CommerceDatabase(ABC):
 
 
 class ShopeeDatabase(CommerceDatabase):
+    valid_fields = shopee.get_valid_fields()
+
     def create_tables(self):
         with self.conn:
+            # TODO: Find a way to keep the column names and their data types depend on the config.json instead of being hard-coded
             self.conn.execute("""CREATE TABLE IF NOT EXISTS `ShopeeProducts` (
                 timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
                 name TEXT,
@@ -41,7 +45,8 @@ class ShopeeDatabase(CommerceDatabase):
                 is_preferred_plus_seller BOOL,
                 shop_location TEXT,
                 image TEXT,
-                item_rating REAL
+                item_rating REAL,
+                item_count INTEGER
             ) """)
 
     def add_items(self, items):
