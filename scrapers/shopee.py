@@ -26,10 +26,9 @@ search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
 
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
-valid_fields = _get_valid_fields()
 
 
-def _get_valid_fields():
+def get_valid_fields() -> [str]:
     """Retrieves the list of fields that the scraper is meant to store
 
     Retrieves a list of field names from a config.json file. Field names 
@@ -41,10 +40,10 @@ def _get_valid_fields():
     return json.load(open('config.json'))['scrapers']['shopee']['valid_fields']
 
 
-valid_fields = _get_valid_fields()
+valid_fields: [str] = get_valid_fields()
 
 
-def flatten_search_results(item):
+def flatten_search_results(item: dict) -> dict:
     """Flattens the nested rating data in a Shopee item's JSON and makes it 
     one-dimensional
 
@@ -73,13 +72,13 @@ def flatten_search_results(item):
         de-nested
 
     """
-    item["rating_count"] = item["item_rating"]["rating_count"][0]
-    item["item_rating"] = item["item_rating"]["rating_star"]
+    item["rating_count"]: int = item["item_rating"]["rating_count"][0]
+    item["item_rating"]: float = item["item_rating"]["rating_star"]
 
     return item
 
 
-def filter_search_results(item):
+def filter_search_results(item: dict) -> dict:
     """receives an item JSON from the Shopee API and removes unecessary fields
 
     Args:
@@ -91,7 +90,7 @@ def filter_search_results(item):
     return {field: item[field] for field in valid_fields}
 
 
-def get_item_link(name, itemid, shopid):
+def get_item_link(name: str, itemid: int, shopid: int):
     """Generates a valid link to the item's Shopee page
 
     Given the necessary arguments, constructs the item's
@@ -109,14 +108,23 @@ def get_item_link(name, itemid, shopid):
         str: URL to the Shopee page
     """
     # separate all spaces in item name with a dash
-    url_name = slugify(name)
-    return f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
+    url_name: str = slugify(name)
+    result: str = f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
+
+    # log the url if it's incorrect and doesn't exist
+    try:
+        response = requests.get(result)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        search_handler.error(f"URL doesn't exist: {url_name}")
+
+    return result
 
 
 def search(filter_results=True,
            flatten_results=True,
            log_results=True,
-           **kwargs):
+           **kwargs) -> dict:
     """Performs a search query on Shopee and yields the results as a generator
 
     Performs a get request on the Shopee API's search endpoint and supplies 
@@ -139,17 +147,16 @@ def search(filter_results=True,
     response = requests.get(url=endpoint, params=kwargs)
     if log_results:
         search_logger.info(f"Sent request to {response.url}")
-    response = response.json()
 
     # list of items returned by the API
-    items = response["items"]
+    items = response.json()["items"]
     for item in items:
         # item's data
         result = item["item_basic"]
         if log_results:
-
             # log search result
             short_name = result['name'][:60]
+            # shorten name if it's too long
             if len(result['name']) >= 60:
                 short_name += '...'
             search_logger.info(
