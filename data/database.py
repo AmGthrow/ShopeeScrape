@@ -46,7 +46,7 @@ class ShopeeDatabase(CommerceDatabase):
                 shop_location TEXT,
                 image TEXT,
                 item_rating REAL,
-                item_count INTEGER
+                rating_count INTEGER
             ) """)
 
     def add_items(self, items: [dict]):
