@@ -26,6 +26,7 @@ search_logger.addHandler(search_handler)
 flash_logger.addHandler(flash_handler)
 
 endpoints = {"search": "https://shopee.ph/api/v4/search/search_items"}
+valid_fields = _get_valid_fields()
 
 
 def _get_valid_fields():
@@ -40,7 +41,7 @@ def _get_valid_fields():
     return json.load('config.json')['scrapers']['shopee']['valid_fields']
 
 
-def _filter_search_data(item, valid_fields=None):
+def _filter_search_data(item):
     """receives an item JSON from the Shopee API and removes unecessary fields
 
     Args:
@@ -108,7 +109,7 @@ def get_item_link(name, itemid, shopid):
     return f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
 
 
-def search(log_results=True, valid_fields=None, **kwargs):
+def search(log_results=True, **kwargs):
     """Performs a search query on Shopee and yields the results as a generator
 
     Performs a get request on the Shopee API's search endpoint and supplies the 
@@ -153,4 +154,4 @@ def search(log_results=True, valid_fields=None, **kwargs):
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
 
-        yield _filter_search_data(result, valid_fields)
+        yield _filter_search_data(result)
