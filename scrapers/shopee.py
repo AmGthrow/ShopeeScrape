@@ -110,7 +110,16 @@ def get_item_link(name, itemid, shopid):
     """
     # separate all spaces in item name with a dash
     url_name = slugify(name)
-    return f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
+    result = f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
+
+    # log the url if it's incorrect and doesn't exist
+    try:
+        response = requests.get(result)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        search_handler.error(f"URL doesn't exist: {url_name}")
+
+    return result
 
 
 def search(filter_results=True,
