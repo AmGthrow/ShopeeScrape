@@ -1,6 +1,7 @@
 import unittest
 from scrapers import shopee
 import utils
+import requests
 
 
 class TestAPI(unittest.TestCase):
@@ -16,3 +17,11 @@ class TestAPI(unittest.TestCase):
         self.assertIsNotNone(search_result)
         for item in search_result:
             self.assertIn("itemid", item)
+            self.testItemLinks(item)
+
+    def testItemLinks(self, item=None):
+        if item is not None:
+            link = shopee.get_item_link(item['name'], item['itemid'],
+                                        item['shopid'])
+            response = requests.get(link)
+            self.assertEqual(response.status_code, 200)
