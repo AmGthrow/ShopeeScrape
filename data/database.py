@@ -17,9 +17,9 @@ class CommerceDatabase(ABC):
 
 
 class ShopeeDatabase(CommerceDatabase):
-    valid_fields = shopee.get_valid_fields()
+    valid_fields: [str] = shopee.get_valid_fields()
 
-    def create_tables(self):
+    def create_tables(self) -> None:
         with self.conn:
             # TODO: Find a way to keep the column names and their data types depend on the config.json instead of being hard-coded
             self.conn.execute("""CREATE TABLE IF NOT EXISTS `ShopeeProducts` (
@@ -49,7 +49,7 @@ class ShopeeDatabase(CommerceDatabase):
                 item_count INTEGER
             ) """)
 
-    def add_items(self, items):
+    def add_items(self, items: [dict]):
         try:
             with self.conn:
                 self.conn.executemany(
