@@ -52,12 +52,7 @@ class ShopeeDatabase(CommerceDatabase):
     def add_items(self, items: [dict]):
         column_names: str = ', '.join(ShopeeDatabase.valid_fields)
         parameter_names: str = ', '.join(":" + field for field in ShopeeDatabase.valid_fields)
-        try:
-            with self.conn:
-                self.conn.executemany(
-                    f"""INSERT INTO `ShopeeProducts`( {column_names}) VALUES( {parameter_names})""",
-                    items)
-        except sqlite3.OperationalError:
-            print(
-                "Table for Shopee items does not exist yet. Please initialize with "
-                "ShopeeDatabase.create_tables()")
+        with self.conn:
+            self.conn.executemany(
+                f"""INSERT INTO `ShopeeProducts`( {column_names}) VALUES( {parameter_names})""",
+                items)
