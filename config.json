@@ -1,4 +1,7 @@
 {
+    "search_queries": [
+        "redmi note 10"
+    ],
     "scrapers": {
         "shopee": {
             "valid_fields": [
