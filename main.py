@@ -5,10 +5,10 @@ from scrapers import shopee
 from data.database import ShopeeDatabase
 
 def main():
-    db = ShopeeDatabase("./data/shopee.db")
+    db = ShopeeDatabase("data/shopee.db")
     to_search = json.load(open('config.json'))['search_queries']
     for search_query in to_search:
-        search_results = shopee.search(keyword=search_query)
+        search_results = shopee.search(add_url=True, keyword=search_query)
         db.add_items(search_results)
 
 

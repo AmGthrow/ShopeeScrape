@@ -25,6 +25,7 @@ class ShopeeDatabase(CommerceDatabase):
             self.conn.execute("""CREATE TABLE IF NOT EXISTS `ShopeeProducts` (
                 timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
                 name TEXT,
+                url TEXT,
                 itemid INTEGER,
                 shopid INTEGER,
                 price INTEGER,
@@ -50,9 +51,11 @@ class ShopeeDatabase(CommerceDatabase):
             ) """)
 
     def add_items(self, items: [dict]):
-        column_names: str = ', '.join(ShopeeDatabase.valid_fields)
-        parameter_names: str = ', '.join(":" + field for field in ShopeeDatabase.valid_fields)
+        # 'url' doesn't count as a valid_field since it's custom, we need to add it manually
+        to_insert = ShopeeDatabase.valid_fields + ['url']
+        column_names: str = ', '.join(to_insert)
+        parameter_names: str = ', '.join(":" + field for field in to_insert)
         with self.conn:
             self.conn.executemany(
-                f"""INSERT INTO `ShopeeProducts`( {column_names}) VALUES( {parameter_names})""",
+                f"""INSERT INTO `ShopeeProducts` ({column_names}) VALUES( {parameter_names})""",
                 items)
