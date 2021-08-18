@@ -150,6 +150,13 @@ def search(filter_results=True,
     for item in items:
         # item's data
         result = item["item_basic"]
+
+        # By default, shopee multiplies all price data by 100000 for some reason
+        # We need to flatten that out first for cleanlinses
+        # TODO: turn the tuple into a regex that searches for fields that have "price"?
+        for price_field in ('price','price_min','price_max','price_before_discount'):
+            result[price_field] //= 100000
+
         if log_results:
             # log search result
             short_name = result['name'][:60]
@@ -162,6 +169,8 @@ def search(filter_results=True,
             # log in case it's a flash sale too
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
+
+
         if flatten_results:
             result = flatten_search_results(result)
         if filter_results:
