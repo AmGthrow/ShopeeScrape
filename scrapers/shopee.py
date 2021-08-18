@@ -117,6 +117,7 @@ def get_item_link(item: dict):
 def search(filter_results=True,
            flatten_results=True,
            log_results=True,
+           add_url=False,
            **kwargs) -> dict:
     """Performs a search query on Shopee and yields the results as a generator
 
@@ -130,6 +131,9 @@ def search(filter_results=True,
         function to the resulting search data. Defaults to True. 
         log_results (bool, optional): Whether to log search results
         and flash sales to log files. Defaults to True.
+        add_url (bool, optional): Whether to also include a 'url' 
+        field that contains the link to the item's page on Shopee. 
+        Defaults to False.
 
     Yields:
         dict: JSON containing the resulting item's data 
@@ -162,4 +166,6 @@ def search(filter_results=True,
             result = flatten_search_results(result)
         if filter_results:
             result = filter_search_results(result)
+        if add_url:
+            result['url'] = get_item_link(result)
         yield result
