@@ -1,6 +1,11 @@
 {
     "search_queries": [
-        "redmi note 10"
+        {
+            "keyword": "redmi note 10",
+            "minPrice": 1000,
+            "maxPrice": 12000,
+            "limit": 10
+        }
     ],
     "scrapers": {
         "shopee": {
