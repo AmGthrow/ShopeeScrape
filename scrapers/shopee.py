@@ -111,13 +111,6 @@ def get_item_link(item: dict):
         result: str = f"https://shopee.ph/{url_name}-i.{item['shopid']}.{item['itemid']}"
     except KeyError:
         raise KeyError("Dict is missing necessary item data")
-    # log the url if it's incorrect and doesn't exist
-    try:
-        response = requests.get(result)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError:
-        search_handler.error(f"URL doesn't exist: {url_name}")
-
     return result
 
 
