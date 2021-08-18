@@ -90,7 +90,7 @@ def filter_search_results(item: dict) -> dict:
     return {field: item[field] for field in valid_fields}
 
 
-def get_item_link(name: str, itemid: int, shopid: int):
+def get_item_link(item: dict):
     """Generates a valid link to the item's Shopee page
 
     Given the necessary arguments, constructs the item's
@@ -100,17 +100,17 @@ def get_item_link(name: str, itemid: int, shopid: int):
     Ex. https://shopee.ph/Psicom-Killer-Game-by-Penguin20-i.56563909.1484895861
 
     Args:
-        name (str): Item's name
-        itemid (int): ItemID, from ShopeeAPI
-        shopid (int): ShopID of the seller, from ShopeeAPI
+        item (dict): A JSON-like object containing a shopee ite'ms data
 
      Returns:
         str: URL to the Shopee page
     """
     # separate all spaces in item name with a dash
-    url_name: str = slugify(name)
-    result: str = f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
-
+    try:
+        url_name: str = slugify(item['name'])
+        result: str = f"https://shopee.ph/{url_name}-i.{item['shopid']}.{item['itemid']}"
+    except KeyError:
+        raise KeyError("Dict is missing necessary item data")
     # log the url if it's incorrect and doesn't exist
     try:
         response = requests.get(result)
@@ -160,7 +160,7 @@ def search(filter_results=True,
             if len(result['name']) >= 60:
                 short_name += '...'
             search_logger.info(
-                f"Got item {short_name} ({get_item_link(result['name'],result['itemid'],result['shopid'])})"
+                f"Got item {short_name} ({get_item_link(result)})"
             )
             # log in case it's a flash sale too
             if result["is_on_flash_sale"]:

@@ -22,8 +22,8 @@ class TestAPI(unittest.TestCase):
 
     def testItemLinks(self, item=None):
         if item is not None:
-            link = shopee.get_item_link(item['name'], item['itemid'],
-                                        item['shopid'])
+            # TODO: Obviously this can be sped up niecely with async
+            link = shopee.get_item_link(item)
             response = requests.get(link)
             self.assertEqual(response.status_code, 200)
 
