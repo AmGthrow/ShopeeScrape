@@ -35,5 +35,5 @@ class TestDB(unittest.TestCase):
 
     def test_store_from_search(self):
         # TODO: test this with an actual item's known data and verify db contents 
-        self.db.add_items(shopee.search(keyword="redmi note 10"))
+        self.db.add_items(shopee.search(add_url=True, keyword="redmi note 10"))
         print(self.db.query("SELECT * FROM ShopeeProducts").fetchone())
