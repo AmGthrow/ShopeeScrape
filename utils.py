@@ -1,5 +1,5 @@
 from urllib.parse import quote
-
+import json
 
 def URLEncodeQuery(**kwargs):
     """Encodes kwarg values to URL-friendly strings
@@ -11,3 +11,6 @@ def URLEncodeQuery(**kwargs):
     for kwarg in kwargs:
         kwargs[kwarg] = quote(str(kwargs[kwarg]))
     return kwargs
+
+def get_queries_from_config(config_path: str='config.json') -> [dict]:
+    return json.load(open(config_path))['search_queries']

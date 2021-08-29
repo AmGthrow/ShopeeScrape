@@ -2,7 +2,11 @@ import requests
 import logging
 import utils
 import json
+from typing import NewType
 from slugify import slugify
+
+# Alias used for type hinting
+ShopeeJSON = NewType('ShopeeJSON', dict)
 
 # ? it is absolutely disgusting to configure logging inside here,
 # ? migrate logging conf settings to the main app instead of the module
@@ -43,7 +47,7 @@ def get_valid_fields() -> [str]:
 valid_fields: [str] = get_valid_fields()
 
 
-def flatten_search_results(item: dict) -> dict:
+def flatten_search_results(item: ShopeeJSON) -> ShopeeJSON:
     """Flattens the nested rating data in a Shopee item's JSON and makes it 
     one-dimensional
 
@@ -62,14 +66,15 @@ def flatten_search_results(item: dict) -> dict:
        ]
     }
 
-    instead of all that, I want to extract exclusively the rating_star value (average rating)
+    instead of all that, I want to extract exclusively the rating_star value
+    (average rating)
 
     Args:
-        item (dict): dict object with data on a Shopee item 
+        item (ShopeeJSON): dict object with data on a Shopee item 
 
     Returns:
-        dict: The same dict object, except the rating_count and item_rating are 
-        de-nested
+        ShopeeJSON: The same dict object, except the rating_count an
+        item_rating are de-nested
 
     """
     item["rating_count"]: int = item["item_rating"]["rating_count"][0]
@@ -78,19 +83,19 @@ def flatten_search_results(item: dict) -> dict:
     return item
 
 
-def filter_search_results(item: dict) -> dict:
+def filter_search_results(item: ShopeeJSON) -> ShopeeJSON:
     """receives an item JSON from the Shopee API and removes unecessary fields
 
     Args:
-        item (dict): dict object with data on a Shopee item
+        item (ShopeeJSON): dict object with data on a Shopee item
 
     Returns:
-        dict: The same dict object, retaining only the relevant fields
+        ShopeeJSON: The same dict object, retaining only the relevant fields
     """
     return {field: item[field] for field in valid_fields}
 
 
-def get_item_link(name: str, itemid: int, shopid: int):
+def get_item_link(item: ShopeeJSON):
     """Generates a valid link to the item's Shopee page
 
     Given the necessary arguments, constructs the item's
@@ -100,46 +105,45 @@ def get_item_link(name: str, itemid: int, shopid: int):
     Ex. https://shopee.ph/Psicom-Killer-Game-by-Penguin20-i.56563909.1484895861
 
     Args:
-        name (str): Item's name
-        itemid (int): ItemID, from ShopeeAPI
-        shopid (int): ShopID of the seller, from ShopeeAPI
+        item (ShopeeJSON): A JSON-like object containing a shopee item's data
 
      Returns:
         str: URL to the Shopee page
     """
     # separate all spaces in item name with a dash
-    url_name: str = slugify(name)
-    result: str = f"https://shopee.ph/{url_name}-i.{shopid}.{itemid}"
-
-    # log the url if it's incorrect and doesn't exist
     try:
-        response = requests.get(result)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError:
-        search_handler.error(f"URL doesn't exist: {url_name}")
-
+        url_name: str = slugify(item['name'])
+        result: str = f"https://shopee.ph/{url_name}-i.{item['shopid']}.{item['itemid']}"
+    except KeyError:
+        raise KeyError("Dict is missing necessary item data")
     return result
 
 
 def search(filter_results=True,
            flatten_results=True,
            log_results=True,
-           **kwargs) -> dict:
+           add_url=False,
+           **kwargs) -> ShopeeJSON:
     """Performs a search query on Shopee and yields the results as a generator
 
     Performs a get request on the Shopee API's search endpoint and supplies 
     given kwargs as parameters. 
 
     Args:
-        filter_results (bool, optional): Whether to apply the filter_search_results()
+        filter_results (bool, optional): Whether to apply the
+        filter_search_results()
         function to the resulting search data. Defaults to True.
-        flatten_results (bool, optional): Whether to apply the flatten_search_results()
+        flatten_results (bool, optional): Whether to apply the 
+        flatten_search_results()
         function to the resulting search data. Defaults to True. 
         log_results (bool, optional): Whether to log search results
         and flash sales to log files. Defaults to True.
+        add_url (bool, optional): Whether to also include a 'url' 
+        field that contains the link to the item's page on Shopee. 
+        Defaults to False.
 
     Yields:
-        dict: JSON containing the resulting item's data 
+        ShopeeJSON: JSON containing the resulting item's data 
     """
     endpoint = endpoints["search"]
     params = utils.URLEncodeQuery(**kwargs)
@@ -153,6 +157,16 @@ def search(filter_results=True,
     for item in items:
         # item's data
         result = item["item_basic"]
+
+        # Clean up data a little bit
+        normalize_price(result)
+        if flatten_results:
+            result = flatten_search_results(result)
+        if filter_results:
+            result = filter_search_results(result)
+        if add_url:
+            result['url'] = get_item_link(result)
+
         if log_results:
             # log search result
             short_name = result['name'][:60]
@@ -160,13 +174,18 @@ def search(filter_results=True,
             if len(result['name']) >= 60:
                 short_name += '...'
             search_logger.info(
-                f"Got item {short_name} ({get_item_link(result['name'],result['itemid'],result['shopid'])})"
+                f"Got item {short_name} ({get_item_link(result)})"
             )
             # log in case it's a flash sale too
             if result["is_on_flash_sale"]:
                 flash_logger.info(f"FLASH SALE: {result['name']}")
-        if flatten_results:
-            result = flatten_search_results(result)
-        if filter_results:
-            result = filter_search_results(result)
+
         yield result
+
+def normalize_price(item: ShopeeJSON) -> ShopeeJSON:
+    # By default, shopee multiplies all price data by 100000 for some reason
+    # We need to flatten that out first for cleanliness
+    # TODO: turn the tuple into a regex that searches for fields that have "price"?
+    for price_field in ('price','price_min','price_max','price_before_discount'):
+        item[price_field] //= 100000
+    return item
