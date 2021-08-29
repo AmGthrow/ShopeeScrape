@@ -20,6 +20,9 @@ class ShopeeDatabase(CommerceDatabase):
     valid_fields: [str] = shopee.get_valid_fields()
 
     def create_tables(self) -> None:
+        """Initializes a ShopeeProducts database to store item info of products
+        from Shopee
+        """
         with self.conn:
             # TODO: Find a way to keep the column names and their data types depend on the config.json instead of being hard-coded
             self.conn.execute("""CREATE TABLE IF NOT EXISTS `ShopeeProducts` (
@@ -51,6 +54,11 @@ class ShopeeDatabase(CommerceDatabase):
             ) """)
 
     def add_items(self, items: [dict]):
+        """Adds the contents of a Shopee JSON response into the database
+
+        Args:
+            items ([dict]): A list of dict-like JSONs which each represent a Shopee item
+        """        
         # 'url' doesn't count as a valid_field since it's custom, we need to add it manually
         to_insert = ShopeeDatabase.valid_fields + ['url']
         column_names: str = ', '.join(to_insert)
