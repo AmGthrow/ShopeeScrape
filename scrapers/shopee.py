@@ -66,14 +66,15 @@ def flatten_search_results(item: ShopeeJSON) -> ShopeeJSON:
        ]
     }
 
-    instead of all that, I want to extract exclusively the rating_star value (average rating)
+    instead of all that, I want to extract exclusively the rating_star value
+    (average rating)
 
     Args:
         item (ShopeeJSON): dict object with data on a Shopee item 
 
     Returns:
-        ShopeeJSON: The same dict object, except the rating_count and item_rating are 
-        de-nested
+        ShopeeJSON: The same dict object, except the rating_count an
+        item_rating are de-nested
 
     """
     item["rating_count"]: int = item["item_rating"]["rating_count"][0]
@@ -104,7 +105,7 @@ def get_item_link(item: ShopeeJSON):
     Ex. https://shopee.ph/Psicom-Killer-Game-by-Penguin20-i.56563909.1484895861
 
     Args:
-        item (ShopeeJSON): A JSON-like object containing a shopee ite'ms data
+        item (ShopeeJSON): A JSON-like object containing a shopee item's data
 
      Returns:
         str: URL to the Shopee page
@@ -129,9 +130,11 @@ def search(filter_results=True,
     given kwargs as parameters. 
 
     Args:
-        filter_results (bool, optional): Whether to apply the filter_search_results()
+        filter_results (bool, optional): Whether to apply the
+        filter_search_results()
         function to the resulting search data. Defaults to True.
-        flatten_results (bool, optional): Whether to apply the flatten_search_results()
+        flatten_results (bool, optional): Whether to apply the 
+        flatten_search_results()
         function to the resulting search data. Defaults to True. 
         log_results (bool, optional): Whether to log search results
         and flash sales to log files. Defaults to True.

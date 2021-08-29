@@ -57,7 +57,8 @@ class ShopeeDatabase(CommerceDatabase):
         """Adds the contents of a Shopee JSON response into the database
 
         Args:
-            items ([dict]): A list of dict-like JSONs which each represent a Shopee item
+            items ([dict]): A list of dict-like JSONs which each represent a
+            Shopee item
         """        
         # 'url' doesn't count as a valid_field since it's custom, we need to add it manually
         to_insert = ShopeeDatabase.valid_fields + ['url']
